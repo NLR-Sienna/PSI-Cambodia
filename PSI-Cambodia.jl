@@ -116,7 +116,7 @@ results = SimulationResults(sim)
 uc_results = get_decision_problem_results(results, "UC")
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
-# ### Plot simulation results using [PowerGraphics.jl](https://github.com/Sienna-Platform/PowerGrahpics.jl)
+# ### Plot simulation results using [PowerGraphics.jl](https://github.com/Sienna-Platform/PowerGraphics.jl)
 
 #nb %% A slide [code] {"slideshow": {"slide_type": "fragment"}}
 plot_fuel(uc_results, generator_mapping_file = "fuel_mapping.yaml");
