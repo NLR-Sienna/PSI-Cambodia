@@ -1,6 +1,6 @@
 # PSI-Cambodia
 
-This repository contains an example of how to execute a power system scheduling simulation in [Sienna](https://github.com/NREL-Sienna/) using the [PowerSimulations.j](https://github.com/NREL-Sienna/PowerSimulations.jl) package, expanding on the data assembled for the [PowNet](https://github.com/kamal0013/PowNet) application for the power
+This repository contains an example of how to execute a power system scheduling simulation in [Sienna](https://github.com/Sienna-Platform/) using the [PowerSimulations.j](https://github.com/Sienna-Platform/PowerSimulations.jl) package, expanding on the data assembled for the [PowNet](https://github.com/kamal0013/PowNet) application for the power
 grid in Cambodia. [![DOI](https://zenodo.org/badge/278169749.svg)](https://zenodo.org/badge/latestdoi/278169749)
 
 ![](https://github.com/kamal0013/PowNet/blob/master/fig2_Cambodia_grid.jpg)
@@ -39,12 +39,12 @@ This simulation is based on three open-source data and modeling tools used to mo
             ```
             This will install PySAM and run process the plant data. (Note: There are two ways to install PySAM: `pip` and `conda`. If you decide to install PySAM on your own rather than using the `environment.yml` file, it is recommended to use `pip` due to delays updating the `conda` version of PySAM: `pip install nrel-pysam`.)
 
-3. Finally, [Sienna](https://github.com/NREL-Sienna/) can be used to run simulations of the Cambodia system, including the new renewable resources. 
+3. Finally, [Sienna](https://github.com/Sienna-Platform/) can be used to run simulations of the Cambodia system, including the new renewable resources. 
 
 This example includes two pieces of code:
- - Data preparation using Sienna's [PowerSystems.jl](https://github.com/nrel-sienna/PowerSystems.jl) package and
+ - Data preparation using Sienna's [PowerSystems.jl](https://github.com/Sienna-Platform/PowerSystems.jl) package and
  construction of a `System`. This includes pulling in the wind and solar power profiles. 
- - Example `Simulation` of a day-ahead unit-commitment scheduling sequence using Sienna's [PowerSimulations.j](https://github.com/NREL-Sienna/PowerSimulations.jl) package.
+ - Example `Simulation` of a day-ahead unit-commitment scheduling sequence using Sienna's [PowerSimulations.j](https://github.com/Sienna-Platform/PowerSimulations.jl) package.
 
 Examples are provided in `.jl` script format. To autogenerate ipython notebooks, execute
 the following commands from a Julia REPL:
