@@ -3,6 +3,8 @@
 This repository contains an example of how to execute a power system scheduling simulation in [Sienna](https://github.com/NREL-Sienna/) using the [PowerSimulations.j](https://github.com/NREL-Sienna/PowerSimulations.jl) package, expanding on the data assembled for the [PowNet](https://github.com/kamal0013/PowNet) application for the power
 grid in Cambodia. [![DOI](https://zenodo.org/badge/278169749.svg)](https://zenodo.org/badge/latestdoi/278169749)
 
+> **Note:** This example has been updated to the current Sienna PSY5 stack. If you are coming from the older PSY3-era API, see [PSY3-to-PSY5-migration.md](PSY3-to-PSY5-migration.md) for a step-by-step guide to the changes.
+
 ![](https://github.com/kamal0013/PowNet/blob/master/fig2_Cambodia_grid.jpg)
 
 This simulation is based on three open-source data and modeling tools used to model power systems with renewable resources such as wind and solar:

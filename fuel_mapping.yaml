@@ -2,38 +2,75 @@
 # - keys should match keys of PowerGraphics/report_templates/color-palette.yaml
 # - primemover should match PowerSystems.PrimeMovers
 # - fuel should match PowerSystems.ThermalFuels
+
 PV:
   - {primemover: PVe, fuel: null}
+
 Wind:
   - {primemover: WT, fuel: null}
+
 Petroleum:
+  # Explicit matches for this system
+  - {primemover: IC, fuel: DISTILLATE_FUEL_OIL}
+  - {primemover: ST, fuel: DISTILLATE_FUEL_OIL}
+
+  # Keep the generic petroleum fuels too (covers any other prime movers)
   - {primemover: null, fuel: DISTILLATE_FUEL_OIL}
   - {primemover: null, fuel: RESIDUAL_FUEL_OIL}
   - {primemover: null, fuel: WASTE_OIL}
   - {primemover: null, fuel: PETROLEUM_COKE}
+
 Storage:
   - {primemover: BA, fuel: null}
+
 NG-CT:
   - {primemover: CT, fuel: NATURAL_GAS}
+
 NG-CC:
   - {primemover: CC, fuel: NATURAL_GAS}
+
 NG-Steam:
   - {primemover: ST, fuel: NATURAL_GAS}
+
 Natural gas:
   - {primemover: null, fuel: NATURAL_GAS}
   - {primemover: null, fuel: OTHER_GAS}
+
 Hydropower:
   - {primemover: HY, fuel: null}
+
 Coal:
+  # Explicit coal steam (seen in this system)
+  - {primemover: ST, fuel: COAL}
+  # Generic coal fallback
   - {primemover: null, fuel: COAL}
+
 Nuclear:
   - {primemover: null, fuel: NUCLEAR}
+
 Geothermal:
   - {primemover: null, fuel: GEOTHERMAL}
+
 Biopower:
   - {primemover: null, fuel: AG_BIPRODUCT}
   - {primemover: null, fuel: WOOD_WASTE}
+
 CSP:
   - {primemover: CP, fuel: null}
+
 Imports/Exports:
+  - {primemover: OT, fuel: OTHER}
+  # Keep a looser fallback too
   - {primemover: OT, fuel: null}
+
+# Catch-all so PowerAnalytics 1.x's make_fuel_dictionary (which iterates ALL
+# StaticInjection components, including PowerLoad) never returns a `nothing`
+# category and crashes with `KeyError: key "nothing" not found`. Components that
+# land here (the loads) carry no generation variable, so categorize_data drops
+# them from the dispatch stack -- they only need a valid category to exist.
+# This replaces the previous `filter_func = x -> !isa(x, ElectricLoad)` work-
+# around, which broke plot_fuel's demand line (the same filter was applied to
+# get_load_data, leaving it with an empty matrix).
+Other:
+  - {primemover: null, fuel: null}
+
