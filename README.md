@@ -48,12 +48,27 @@ This example includes two pieces of code:
  construction of a `System`. This includes pulling in the wind and solar power profiles. 
  - Example `Simulation` of a day-ahead unit-commitment scheduling sequence using Sienna's [PowerSimulations.j](https://github.com/Sienna-Platform/PowerSimulations.jl) package.
 
-Examples are provided in `.jl` script format. To autogenerate ipython notebooks, execute
-the following commands from a Julia REPL:
+## Setup
+
+Requires [Julia](https://julialang.org/downloads/) 1.11 or newer.
+
+```bash
+git submodule update --init PowNet
+```
+
+From a Julia REPL at the repository root:
 
 ```julia
-] activate . # Activates the required environment
+] activate .
+] instantiate
+```
+
+## Running the example
+
+Examples are provided as `.jl` scripts. To autogenerate Jupyter notebooks:
+
+```julia
 include("literate.jl")
 ```
 
-From there, users can walk step-by-step through the generated example, PSI-Cambodia.ipynb, using Jupyter Notebooks. 
+This produces `Cambodia-data-prep.ipynb` and `PSI-Cambodia.ipynb` (not committed; see `.gitignore`).
