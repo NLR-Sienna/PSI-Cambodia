@@ -39,8 +39,8 @@ using Dates
 using CSV
 using DataFrames
 using HiGHS
+using PlotlyLight
 solver  = optimizer_with_attributes(HiGHS.Optimizer)
-plotlyjs()
 
 # %% name="A slide " slideshow={"slide_type": "skip"}
 logger = configure_logging(console_level = Logging.Info,
