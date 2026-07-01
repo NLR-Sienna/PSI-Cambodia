@@ -1,34 +1,19 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .jl
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.19.1
-#   kernelspec:
-#     display_name: Julia 1.11
-#     language: julia
-#     name: julia-1.11
-# ---
-
-# %% [markdown] name="A slide " slideshow={"slide_type": "slide"}
+#nb # %% [markdown]
 # # Sienna\Ops Production Cost Modeling Demo using the [PowerSimulations.jl](https://github.com/Sienna-Platform/powersimulations.jl) package
 # **Cambodia Example**: from [PowNet](https://github.com/kamal0013/PowNet)
 #
 # https://github.com/NLR-Sienna/PSI-Cambodia
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "slide"}
+#nb # %% [markdown]
 # ## Introduction
 # This example shows how to run a PCM study using Powersimulations.jl. This example depends upon a
 # dataset of the Cambodian grid assembled using the
 # [Cambodia-data-prep.jl](./Cambodia-data-prep.jl) script and [PowerSystems.jl](https://github.com/Sienna-Platform/PowerSystems.jl).
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Dependencies
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 using PowerSystems
 using PowerSimulations
 using PowerAnalytics
@@ -42,24 +27,24 @@ using DataFrames
 using HiGHS
 solver  = optimizer_with_attributes(HiGHS.Optimizer)
 
-# %% name="A slide " slideshow={"slide_type": "skip"}
+#nb %%
 logger = configure_logging(console_level = Logging.Info,
     file_level = Logging.Debug,
     filename = "log.txt")
 
 sim_folder = mkpath(joinpath(pwd(), "Cambodia-sim"))
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Load the `System` from the serialized data.
 # *Note that the underlying time-series data is from 2016; time-stamps list 2017 as a hack from Cambodia-data-prep.jl to accommodate the fact that 2016 is a leap year and we have no leap day information*
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 sys = System("sys-cambodia.json")
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "slide"}
+#nb # %% [markdown]
 # ## Set up PCM
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Create a problem `template`
 # Now we can create a `template` that specifies a standard unit commitment problem
 # with a DCOPF network representation.
@@ -69,34 +54,34 @@ sys = System("sys-cambodia.json")
 # `HydroDispatch` (PSY3's default ran it as run-of-river). We add it back explicitly so
 # the hydro fleet dispatches against its inflow time series and shows up in the results.
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 template = template_unit_commitment(network = NetworkModel(DCPPowerModel, duals = [NodalBalanceActiveConstraint]))
 set_device_model!(template, HydroDispatch, HydroDispatchRunOfRiver)
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Create a `model`
 # Now we can apply the `template` to the data (`sys`) to create a `model`.
 # *Note that you can define multiple models here to create multi-stage simulations*
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 models = SimulationModels(
     decision_models=[
         DecisionModel(template, sys, optimizer=solver, name="UC"),
     ],
 )
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Sequential Simulation
 # In addition to defining the formulation template, sequential simulations require
 # definitions for how information flows between problems.
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 DA_sequence = SimulationSequence(
     models=models,
     ini_cond_chronology=InterProblemChronology(),
 )
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Define and build a simulation
 # This simulation is only 3 days (3 steps) for computation speed. In order to run a year-long (364 days due to the 24 hour lookahead) simulations, the following code is recommended instead:
 #
@@ -108,7 +93,7 @@ DA_sequence = SimulationSequence(
 #     simulation_folder=sim_folder,
 # )
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 sim = Simulation(
     name = "Cambodia-no-RE",
     steps = 3,
@@ -119,64 +104,64 @@ sim = Simulation(
 
 build!(sim, console_level = Logging.Info, file_level = Logging.Debug,  recorders = [:simulation])
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Execute the simulation
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 execute!(sim)
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "slide"}
+#nb # %% [markdown]
 # ## Explore Simulation Results
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Load simulation results
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 results = SimulationResults(sim)
 uc_results = get_decision_problem_results(results, "UC")
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Plot simulation results using [PowerGraphics.jl](https://github.com/Sienna-Platform/PowerGraphics.jl)
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 plot_fuel_plotly(uc_results, generator_mapping_file = "fuel_mapping.yaml");
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ## Read in some summary information about the optimization process
 # Each objective_value is for the full 48 hour optimization window, including the lookahead
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 first(read_optimizer_stats(uc_results), 10)
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Now read in the *realized* cost for each timestep for each thermal generator
 # In this model, wind, solar, and hydro have 0 operating cost and do not contribute to total cost
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 costs = read_realized_expressions(uc_results, list_expression_names(uc_results))["ProductionCostExpression__ThermalStandard"]
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### We can sum over the set of generators and time-steps to get total production cost for this window
 
-# %%
+#nb %%
 #sum(sum(eachcol(costs[!, 2:end])))
 sum(sum, eachcol(costs[:, 3:end]))
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Look up a table of the Locational Marginal Prices (LMPs)
 # LMPs represent the value of 1 additional MW of power at the given node
 # LMPs are reversed in sign
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 first(read_realized_duals(uc_results)["NodalBalanceActiveConstraint__ACBus"], 100)
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "slide"}
+#nb # %% [markdown]
 # # Now, let's connect the potential renewable generators
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Connect renewable generators
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 for g in get_components(RenewableDispatch, sys)
     set_available!(g, true)
 end
@@ -192,7 +177,7 @@ DA_sequence = SimulationSequence(
     ini_cond_chronology=InterProblemChronology(),
 )
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Re-build and re-simulate
 # If switching to a year-long simulation rather than 3-day snapshot, first re-run the simulation definition. This also saves the result to a separate folder than the "no RE" base case to allow for post-processing comparisons:
 #
@@ -204,7 +189,7 @@ DA_sequence = SimulationSequence(
 #     simulation_folder=sim_folder,
 # )
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 sim = Simulation(
     name = "Cambodia-RE",
     steps = 3,
@@ -219,24 +204,24 @@ execute!(sim);
 results = SimulationResults(sim);
 uc_results = get_decision_problem_results(results, "UC");
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Plot dispatch stack with renewables
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 plot_fuel_plotly(uc_results, generator_mapping_file = "fuel_mapping.yaml");
 
-# %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
+#nb # %% [markdown]
 # ### Get total operating cost of system with renewables for comparison
 
-# %% name="A slide " slideshow={"slide_type": "fragment"}
+#nb %%
 costs = read_realized_expressions(uc_results, list_expression_names(uc_results))["ProductionCostExpression__ThermalStandard"]
 sum(sum, eachcol(costs[:, 3:end]))
 
-# %% [markdown]
+#nb # %% [markdown]
 # ### Power Analytics Comparison
 #
 
-# %%
+#nb %%
 # Load results folder 
 results_dir = sim_folder
 results_all = create_problem_results_dict(results_dir, "UC"; populate_system=true)
@@ -303,4 +288,4 @@ df_summary = post_processing(results_all)
 show(df_summary; allcols=true)
 
 
-# %%
+#nb %%

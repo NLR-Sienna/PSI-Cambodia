@@ -1,19 +1,3 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .jl
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.19.1
-#   kernelspec:
-#     display_name: Julia 1.11
-#     language: julia
-#     name: julia-1.11
-# ---
-
-# %%
 using Pkg
 Pkg.activate(".")
 Pkg.status()
@@ -26,10 +10,8 @@ using Dates
 using TimeSeries
 using JSON
 
-# %%
 
-# %%
-# Read in and clean data
+# # Read in and clean data
 pownet_data_dir = joinpath("PowNet", "Model_withdata", "input")     # data source
 sienna_data_dir = mkpath("sienna_data")                             # formatted data target
 re_config_dir   = "REDE_resource_data"                              # renewable config directory
@@ -40,7 +22,6 @@ re_data_dir     = joinpath("REDE_resource_data", "Output")          # renewable 
 branch = CSV.read(joinpath(pownet_data_dir, "data_camb_transparam.csv"), DataFrame)
 gens   = CSV.read(joinpath(pownet_data_dir, "data_camb_genparams.csv"), DataFrame)
 
-# %%
 # Add missing required branch info
 branch[!, :r] .= 0.0
 branch[!, :b] .= 0.0
@@ -49,8 +30,7 @@ branch[!, :name] = branch.source .* "_" .* branch.sink
 
 
 
-# %%
-# timeseries_pointers
+# # Collect time-varying component info
 
 # Internal helper: create time series pointer entries
 function make_tsp(df, label, simulation, category, input_data_dir, ts_name)
@@ -194,7 +174,6 @@ gens[gens.name.=="impnode_thai", :var_om] .= 66.0
 
 
 
-# %%
 # # Export supporting .csv files
 # Create a bus/node table
 loads = DataFrame(loads_tsp)
@@ -216,7 +195,6 @@ open(joinpath(sienna_data_dir, "timeseries_pointers.json"), "w") do io
     write(io, json_str)
 end
 
-# %%
 rawsys = PowerSystemTableData(
     sienna_data_dir,
     100.0,
@@ -237,7 +215,6 @@ end
 to_json(sys, "sys-cambodia.json", force = true)
 
 
-# %%
 for g in get_components(RenewableDispatch, sys)
     println(get_name(g)," pm=", get_prime_mover_type(g))
 end
@@ -249,5 +226,3 @@ end
 for g in get_components(ThermalMultiStart, sys)
     println(get_name(g), "  fuel=", get_fuel(g), "  pm=", get_prime_mover_type(g))
 end
-
-# %%
