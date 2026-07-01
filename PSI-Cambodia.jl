@@ -32,6 +32,7 @@
 using PowerSystems
 using PowerSimulations
 using PowerAnalytics
+using PlotlyLight
 using PowerGraphics
 using HydroPowerSimulations
 using Logging
@@ -39,7 +40,6 @@ using Dates
 using CSV
 using DataFrames
 using HiGHS
-using PlotlyLight
 solver  = optimizer_with_attributes(HiGHS.Optimizer)
 
 # %% name="A slide " slideshow={"slide_type": "skip"}
@@ -136,10 +136,10 @@ results = SimulationResults(sim)
 uc_results = get_decision_problem_results(results, "UC")
 
 # %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
-# ### Plot simulation results using [PowerGraphics.jl](https://github.com/Sienna-Platform/PowerGrahpics.jl)
+# ### Plot simulation results using [PowerGraphics.jl](https://github.com/Sienna-Platform/PowerGraphics.jl)
 
 # %% name="A slide " slideshow={"slide_type": "fragment"}
-plot_fuel(uc_results, generator_mapping_file = "fuel_mapping.yaml");
+plot_fuel_plotly(uc_results, generator_mapping_file = "fuel_mapping.yaml");
 
 # %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
 # ## Read in some summary information about the optimization process
@@ -181,6 +181,17 @@ for g in get_components(RenewableDispatch, sys)
     set_available!(g, true)
 end
 
+# Rebuild decision models so unavailable renewables from the no-RE build are included.
+models = SimulationModels(
+    decision_models=[
+        DecisionModel(template, sys, optimizer=solver, name="UC"),
+    ],
+)
+DA_sequence = SimulationSequence(
+    models=models,
+    ini_cond_chronology=InterProblemChronology(),
+)
+
 # %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
 # ### Re-build and re-simulate
 # If switching to a year-long simulation rather than 3-day snapshot, first re-run the simulation definition. This also saves the result to a separate folder than the "no RE" base case to allow for post-processing comparisons:
@@ -212,7 +223,7 @@ uc_results = get_decision_problem_results(results, "UC");
 # ### Plot dispatch stack with renewables
 
 # %% name="A slide " slideshow={"slide_type": "fragment"}
-plot_fuel(uc_results, generator_mapping_file = "fuel_mapping.yaml");
+plot_fuel_plotly(uc_results, generator_mapping_file = "fuel_mapping.yaml");
 
 # %% [markdown] name="A slide " slideshow={"slide_type": "subslide"}
 # ### Get total operating cost of system with renewables for comparison
@@ -222,7 +233,7 @@ costs = read_realized_expressions(uc_results, list_expression_names(uc_results))
 sum(sum, eachcol(costs[:, 3:end]))
 
 # %% [markdown]
-# ### Power Analytics Comparsion
+# ### Power Analytics Comparison
 #
 
 # %%
@@ -237,16 +248,22 @@ results_all = Dict(
 # Define selectors
 thermal_selector_sys    = make_selector(ThermalStandard; groupby=:all)
 renewable_selector_sys  = make_selector(RenewableDispatch; groupby=:all)
-storage_selector_sys    = make_selector(EnergyReservoirStorage; groupby=:all)
 
 #Define which time-series metrics to compute (same pattern as tutorial)
-time_computations = [
-    (PowerAnalytics.Metrics.calc_active_power,     thermal_selector_sys,   "Thermal Generation (MWh)"),
-    (PowerAnalytics.Metrics.calc_curtailment,      renewable_selector_sys, "Renewables Curtailment (MWh)"),
-    (PowerAnalytics.Metrics.calc_active_power_in,  storage_selector_sys,   "Storage Charging (MWh)"),
-    (PowerAnalytics.Metrics.calc_active_power_out, storage_selector_sys,   "Storage Discharging (MWh)"),
-    (PowerAnalytics.Metrics.calc_stored_energy,    storage_selector_sys,   "Storage SOC (MWh)"),
+thermal_metrics = [
+    (PowerAnalytics.Metrics.calc_active_power, thermal_selector_sys, "Thermal Generation (MWh)"),
 ]
+renewable_metrics = [
+    (PowerAnalytics.Metrics.calc_curtailment, renewable_selector_sys, "Renewables Curtailment (MWh)"),
+]
+
+function time_computations_for(scenario_name)
+    if scenario_name == "Cambodia-RE"
+        return vcat(thermal_metrics, renewable_metrics)
+    else
+        return thermal_metrics
+    end
+end
 
 # define “Timeless” metrics (same as tutorial)
 timeless_computations = [
@@ -256,8 +273,8 @@ timeless_computations = [
 timeless_names        = ["Objective Value", "Solve Time (s)", "Memory Allocated"]
 
 # same as the tutorial too
-function analyze_one(results)
-    time_series_analytics = compute_all(results, time_computations...)
+function analyze_one(results, scenario_name)
+    time_series_analytics = compute_all(results, time_computations_for(scenario_name)...)
     aggregated_time       = aggregate_time(time_series_analytics)
     computed_all          = compute_all(results, timeless_computations, nothing, timeless_names)
     all_time_analytics    = hcat(aggregated_time, computed_all)
@@ -273,11 +290,11 @@ function post_processing(all_results)
     summaries = DataFrame[]
     for (scenario_name, results) in pairs(all_results)
         println("Computing for scenario: ", scenario_name)
-        (ts, alltime) = analyze_one(results)
+        (ts, alltime) = analyze_one(results, scenario_name)
         save_one(results.results_output_folder, ts, alltime)
         push!(summaries, hcat(DataFrame("Scenario" => scenario_name), alltime))
     end
-    summaries_df = vcat(summaries...)
+    summaries_df = vcat(summaries...; cols=:union)
     CSV.write(joinpath(results_dir,"all_scenarios_summary.csv"), summaries_df)
     return summaries_df
 end

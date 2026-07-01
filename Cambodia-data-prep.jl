@@ -39,7 +39,6 @@ re_data_dir     = joinpath("REDE_resource_data", "Output")          # renewable 
 # Read PowNet data files
 branch = CSV.read(joinpath(pownet_data_dir, "data_camb_transparam.csv"), DataFrame)
 gens   = CSV.read(joinpath(pownet_data_dir, "data_camb_genparams.csv"), DataFrame)
-loads   = CSV.read(joinpath(pownet_data_dir, "data_camb_load_2016.csv"), DataFrame)
 
 # %%
 # Add missing required branch info
@@ -108,9 +107,6 @@ function make_ts_and_tsp(ts_name, input_data_dir, sienna_data_dir, category, sim
 
     df_comp = ts[:, component_cols]
 
-    @show eltype(ts[!, component_cols[1]])
-    
-
     return make_tsp(df_comp, label, simulation, category, input_data_dir, ts_name)
 end
 
@@ -147,14 +143,6 @@ re_tsp = make_ts_and_tsp(
 # Combine all time series metadata
 all_tsp = vcat(loads_tsp, hydro_tsp, re_tsp)
 
-
-
-
-
-# %%
-gens
-
-# %%
 # # Collect generator metadata
 # Helper function to add hydro, solar, and wind plants
 
@@ -218,9 +206,6 @@ bus[[b in names(loads) for b in bus.node], :type] .= "PQ"
 bus[bus.node.==gens[gens.maxcap.==maximum(gens.maxcap), :node], :type] .= "REF"
 bus[!, :id] = [1:nrow(bus)...]
 
-bus
-
-# %%
 CSV.write(joinpath(sienna_data_dir, "timeseries_pointers.csv"), all_tsp)
 CSV.write(joinpath(sienna_data_dir, "branch.csv"), branch)
 CSV.write(joinpath(sienna_data_dir, "gen.csv"), gens)
