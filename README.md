@@ -3,8 +3,6 @@
 This repository contains an example of how to execute a power system scheduling simulation in [Sienna](https://github.com/Sienna-Platform/) using the [PowerSimulations.j](https://github.com/Sienna-Platform/PowerSimulations.jl) package, expanding on the data assembled for the [PowNet](https://github.com/kamal0013/PowNet) application for the power
 grid in Cambodia. [![DOI](https://zenodo.org/badge/278169749.svg)](https://zenodo.org/badge/latestdoi/278169749)
 
-> **Note:** This example has been updated to the current Sienna PSY5 stack. If you are coming from the older PSY3-era API, see [PSY3-to-PSY5-migration.md](PSY3-to-PSY5-migration.md) for a step-by-step guide to the changes.
-
 ![](https://github.com/kamal0013/PowNet/blob/master/fig2_Cambodia_grid.jpg)
 
 This simulation is based on three open-source data and modeling tools used to model power systems with renewable resources such as wind and solar:
@@ -65,10 +63,24 @@ From a Julia REPL at the repository root:
 
 ## Running the example
 
-Examples are provided as `.jl` scripts. To autogenerate Jupyter notebooks:
+The workflow is Julia-first: run the `.jl` scripts directly or generate notebooks with [Literate.jl](https://github.com/fredrikekre/Literate.jl).
 
-```julia
-include("literate.jl")
-```
+1. Prepare the serialized system (regenerates `sys-cambodia.*` if needed):
 
-This produces `Cambodia-data-prep.ipynb` and `PSI-Cambodia.ipynb` (not committed; see `.gitignore`).
+   ```bash
+   julia --project=. Cambodia-data-prep.jl
+   ```
+
+2. Run the unit-commitment example (uses [PlotlyLight](https://github.com/JuliaPlots/PlotlyLight.jl) for interactive dispatch plots):
+
+   ```bash
+   julia --project=. PSI-Cambodia.jl
+   ```
+
+3. Optionally generate Jupyter notebooks from the Literate-formatted scripts:
+
+   ```julia
+   include("literate.jl")
+   ```
+
+   This produces `Cambodia-data-prep.ipynb` (executed) and `PSI-Cambodia.ipynb` (not executed). Notebooks are gitignored; regenerate them locally with `literate.jl`.
