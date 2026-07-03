@@ -143,7 +143,6 @@ costs = read_realized_expressions(uc_results, list_expression_names(uc_results))
 # ### We can sum over the set of generators and time-steps to get total production cost for this window
 
 #-
-#sum(sum(eachcol(costs[!, 2:end])))
 sum(sum, eachcol(costs[:, 3:end]))
 
 #-
