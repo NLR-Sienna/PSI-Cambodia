@@ -46,12 +46,41 @@ This example includes two pieces of code:
  construction of a `System`. This includes pulling in the wind and solar power profiles. 
  - Example `Simulation` of a day-ahead unit-commitment scheduling sequence using Sienna's [PowerSimulations.j](https://github.com/Sienna-Platform/PowerSimulations.jl) package.
 
-Examples are provided in `.jl` script format. To autogenerate ipython notebooks, execute
-the following commands from a Julia REPL:
+## Setup
 
-```julia
-] activate . # Activates the required environment
-include("literate.jl")
+Requires [Julia](https://julialang.org/downloads/) 1.11 or newer.
+
+```bash
+git submodule update --init PowNet
 ```
 
-From there, users can walk step-by-step through the generated example, PSI-Cambodia.ipynb, using Jupyter Notebooks. 
+From a Julia REPL at the repository root:
+
+```julia
+] activate .
+] instantiate
+```
+
+## Running the example
+
+The workflow is Julia-first: run the `.jl` scripts directly or generate notebooks with [Literate.jl](https://github.com/fredrikekre/Literate.jl).
+
+1. Prepare the serialized system (regenerates `sys-cambodia.*` if needed):
+
+   ```bash
+   julia --project=. Cambodia-data-prep.jl
+   ```
+
+2. Run the unit-commitment example (uses [PlotlyLight](https://github.com/JuliaPlots/PlotlyLight.jl) for interactive dispatch plots):
+
+   ```bash
+   julia --project=. PSI-Cambodia.jl
+   ```
+
+3. Optionally generate Jupyter notebooks from the Literate-formatted scripts:
+
+   ```julia
+   include("literate.jl")
+   ```
+
+   This produces `Cambodia-data-prep.ipynb` (executed) and `PSI-Cambodia.ipynb` (not executed). Notebooks are gitignored; regenerate them locally with `literate.jl`.

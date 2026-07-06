@@ -1,5 +1,7 @@
 *.txt
 *.log
 *.ipynb*
+Manifest.toml
 sienna_data
 *.DS_Store
+Cambodia-sim
