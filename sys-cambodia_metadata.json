@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "description": "",
+    "name": "Cambodia",
+    "description": "PowNet Cambodia transmission network with 2016 load, hydro, and renewable time series",
     "frequency": 60,
     "time_series_resolutions_milliseconds": [
         3600000

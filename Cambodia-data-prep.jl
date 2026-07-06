@@ -181,7 +181,7 @@ loads = DataFrame(loads_tsp)
 bus = DataFrame(Dict(:node => union(branch.source, branch.sink)))
 bus[!, :type] .= "PV"
 bus[!, :voltage] .= 100.0
-bus[[b in names(loads) for b in bus.node], :type] .= "PQ"
+bus[[b in loads.component_name for b in bus.node], :type] .= "PQ"
 bus[bus.node.==gens[gens.maxcap.==maximum(gens.maxcap), :node], :type] .= "REF"
 bus[!, :id] = [1:nrow(bus)...]
 
@@ -212,6 +212,8 @@ for g in get_components(RenewableDispatch, sys)
     set_available!(g, false)
 end
 
+set_name!(sys, "Cambodia")
+set_description!(sys, "PowNet Cambodia transmission network with 2016 load, hydro, and renewable time series")
 to_json(sys, "sys-cambodia.json", force = true)
 
 
