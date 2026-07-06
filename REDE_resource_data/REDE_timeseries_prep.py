@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# This code takes the time-series wind and solar resource profiles from the RE-Data Explorer and processes them into power profiles to use in time-series simulations in PowerSimulations.jl.  
+# This code takes time-series wind resource profiles from the WRDB and solar resource profiles from the NSRDB
+# (formerly accessed via the deprecated RE Data Explorer) and processes them into power profiles for
+# time-series simulations in PowerSimulations.jl.  
 
 import PySAM.Pvwattsv8
 import PySAM.Windpower
