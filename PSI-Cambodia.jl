@@ -1,11 +1,11 @@
-# # Sienna\Ops Production Cost Modeling Demo using the [PowerSimulations.jl](https://github.com/Sienna-Platform/powersimulations.jl) package
+# # Sienna\Ops Production Cost Modeling Demo using the [PowerSimulations.jl](https://github.com/Sienna-Platform/PowerSimulations.jl) package
 # **Cambodia Example**: from [PowNet](https://github.com/kamal0013/PowNet)
 #
 # https://github.com/NLR-Sienna/PSI-Cambodia
 
 #-
 # ## Introduction
-# This example shows how to run a PCM study using Powersimulations.jl. This example depends upon a
+# This example shows how to run a PCM study using PowerSimulations.jl. This example depends upon a
 # dataset of the Cambodian grid assembled using the
 # [Cambodia-data-prep.jl](./Cambodia-data-prep.jl) script and [PowerSystems.jl](https://github.com/Sienna-Platform/PowerSystems.jl).
 
